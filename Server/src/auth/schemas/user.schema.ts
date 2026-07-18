@@ -19,7 +19,7 @@ export class User {
   @Prop({ default: false })
   isVerified!: boolean;
 
-  @Prop({ required: false, default: null })
+  @Prop({ type: String, required: false, default: null })
   refreshToken?: string | null;
 
   createdAt!: Date;

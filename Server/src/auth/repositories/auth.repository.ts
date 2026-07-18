@@ -3,10 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { BaseMongoRepository } from '../../database/mongodb/base.mongo.repository';
-import { IAuthRepository } from '../interfaces/auth.repository.interface';
+import { IAuthRepository } from '../interfaces/repository/auth.repository.interface';
 
 @Injectable()
-export class AuthRepository extends BaseMongoRepository<UserDocument> implements IAuthRepository {
+export class AuthRepository
+  extends BaseMongoRepository<UserDocument>
+  implements IAuthRepository
+{
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,

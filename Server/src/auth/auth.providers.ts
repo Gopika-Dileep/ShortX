@@ -1,21 +1,21 @@
-import { IAuthRepositoryToken } from './interfaces/auth.repository.interface';
+import { IAuthRepository } from './interfaces/repository/auth.repository.interface';
 import { AuthRepository } from './repositories/auth.repository';
-import { IIdentityServiceToken } from './interfaces/identity.service.interface';
+import { IIdentityService } from './interfaces/services/identity.service.interface';
 import { IdentityService } from './services/identity.service';
-import { IAccountServiceToken } from './interfaces/account.service.interface';
+import { IAccountService } from './interfaces/services/account.service.interface';
 import { AccountService } from './services/account.service';
 
 export const authProviders = [
   {
-    provide: IAuthRepositoryToken,
+    provide: IAuthRepository,
     useClass: AuthRepository,
   },
   {
-    provide: IIdentityServiceToken,
+    provide: IIdentityService,
     useClass: IdentityService,
   },
   {
-    provide: IAccountServiceToken,
+    provide: IAccountService,
     useClass: AccountService,
   },
 ];
