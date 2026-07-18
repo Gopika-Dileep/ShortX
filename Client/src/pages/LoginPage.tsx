@@ -1,0 +1,113 @@
+import { useState } from 'react';
+import type { FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useAppDispatch } from '../store/hooks';
+import { setCredentials } from '../store/authSlice';
+import { authApi } from '../api/auth.api';
+import AuthLayout from '../components/AuthLayout';
+import Logo from '../components/Logo';
+
+export default function LoginPage() {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const { data } = await authApi.login({ email, password });
+      dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AuthLayout>
+      <Logo />
+
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-1.5">Welcome back</h1>
+        <p className="text-sm text-gray-500">Sign in to your ShortX account</p>
+      </div>
+
+      {error && (
+        <div className="mb-5 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-gray-700">Email address</label>
+          <input
+            id="login-email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full h-11 px-3.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-gray-700">Password</label>
+            <Link to="/forgot-password" className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+              Forgot password?
+            </Link>
+          </div>
+          <div className="relative">
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              className="w-full h-11 px-3.5 pr-11 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        <button
+          id="login-submit"
+          type="submit"
+          disabled={loading}
+          className="w-full h-11 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+        >
+          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+
+      <p className="text-sm text-gray-500 mt-8">
+        Don't have an account?{' '}
+        <Link to="/register" className="text-indigo-600 font-medium hover:text-indigo-700">
+          Create one
+        </Link>
+      </p>
+    </AuthLayout>
+  );
+}

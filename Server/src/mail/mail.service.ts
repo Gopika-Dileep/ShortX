@@ -1,43 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { IMailService } from './interfaces/mail.service.interface';
 
 @Injectable()
-export class MailService {
+export class MailService implements IMailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: nodemailer.Transporter | null = null;
+  private transporter: nodemailer.Transporter;
 
   constructor(private readonly configService: ConfigService) {
-    this.initializeTransporter();
-  }
-
-  private initializeTransporter() {
-    const host = this.configService.get<string>('mail.host');
-    const port = this.configService.get<number>('mail.port');
-    const user = this.configService.get<string>('mail.user');
-    const pass = this.configService.get<string>('mail.pass');
-
-    if (!host || !user || !pass || user === 'placeholder_user') {
-      this.logger.warn('SMTP is not configured (or is using placeholders). Email sending will be logged to console.');
-      return;
-    }
-
-    try {
-      this.transporter = nodemailer.createTransport({
-        host,
-        port,
-        auth: {
-          user,
-          pass,
-        },
-      });
-    } catch (error: any) {
-      this.logger.error(`Failed to initialize nodemailer transporter: ${error.message}`);
-    }
+    this.transporter = nodemailer.createTransport({
+      host: this.configService.get<string>('SMTP_HOST'),
+      port: this.configService.get<number>('SMTP_PORT'),
+      auth: {
+        user: this.configService.get<string>('SMTP_USER'),
+        pass: this.configService.get<string>('SMTP_PASS'),
+      },
+    });
   }
 
   async sendMail(to: string, subject: string, html: string): Promise<void> {
-    const from = this.configService.get<string>('mail.from') ?? 'no-reply@shortx.com';
+    const from = this.configService.get<string>('SMTP_FROM');
 
     if (this.transporter) {
       try {
@@ -50,7 +33,9 @@ export class MailService {
         this.logger.log(`Email successfully sent to ${to}`);
         return;
       } catch (error: any) {
-        this.logger.error(`Failed to send email to ${to} via SMTP: ${error.message}`);
+        this.logger.error(
+          `Failed to send email to ${to} via SMTP: ${error.message}`,
+        );
       }
     }
 

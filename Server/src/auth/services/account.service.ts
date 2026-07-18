@@ -1,27 +1,31 @@
-import { Injectable, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { IAccountService } from '../interfaces/account.service.interface';
-import { IAuthRepositoryToken } from '../interfaces/auth.repository.interface';
-import type { IAuthRepository } from '../interfaces/auth.repository.interface';
-import { RedisService } from '../../database/redis/redis.service';
-import { MailService } from '../../mail/mail.service';
-import type { VerifyOtpDto } from '../dto/verify-otp.dto';
-import type { ForgotPasswordDto } from '../dto/forgot-password.dto';
-import type { ResetPasswordDto } from '../dto/reset-password.dto';
-import { AUTH_CONSTANTS } from '../constants/auth.constants';
+import { IAccountService } from '../interfaces/services/account.service.interface';
+import { IAuthRepository } from '../interfaces/repository/auth.repository.interface';
+import { IRedisService } from '../../database/redis/interfaces/redis.service.interface';
+import { IMailService } from '../../mail/interfaces/mail.service.interface';
+import type { VerifyOtpDto } from '../dto/otp.dto';
+import type { ForgotPasswordDto, ResetPasswordDto } from '../dto/password.dto';
 import { AuthMapper } from '../mapper/auth.mapper';
 import { User } from '../schemas/user.schema';
 
 @Injectable()
 export class AccountService implements IAccountService {
   constructor(
-    @Inject(IAuthRepositoryToken)
+    @Inject(IAuthRepository)
     private readonly authRepository: IAuthRepository,
-    private readonly redisService: RedisService,
-    private readonly mailService: MailService,
+    @Inject(IRedisService)
+    private readonly redisService: IRedisService,
+    @Inject(IMailService)
+    private readonly mailService: IMailService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
@@ -38,7 +42,8 @@ export class AccountService implements IAccountService {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await this.redisService.set(`otp:${emailLower}`, otp, AUTH_CONSTANTS.OTP_EXPIRY_SECONDS);
+    const otpExpiry = this.configService.get<number>('OTP_EXPIRY_SECONDS')!;
+    await this.redisService.set(`otp:${emailLower}`, otp, otpExpiry);
 
     await this.mailService.sendMail(
       emailLower,
@@ -46,7 +51,7 @@ export class AccountService implements IAccountService {
       `<h3>Email Verification</h3>
        <p>Your verification OTP is:</p>
        <h2>${otp}</h2>
-       <p>This code will expire in 5 minutes.</p>`,
+       <p>This code will expire in ${Math.floor(otpExpiry / 60)} minutes.</p>`,
     );
 
     return { message: 'Verification OTP sent to your email' };
@@ -84,9 +89,16 @@ export class AccountService implements IAccountService {
 
     if (user && user.isVerified) {
       const resetToken = crypto.randomBytes(32).toString('hex');
-      await this.redisService.set(`reset:${resetToken}`, email, AUTH_CONSTANTS.RESET_TOKEN_EXPIRY_SECONDS);
+      const resetTokenExpiry = this.configService.get<number>(
+        'RESET_TOKEN_EXPIRY_SECONDS',
+      )!;
+      await this.redisService.set(
+        `reset:${resetToken}`,
+        email,
+        resetTokenExpiry,
+      );
 
-      const clientUrl = this.configService.get<string>('CLIENT_URL') ?? 'http://localhost:3000';
+      const clientUrl = this.configService.get<string>('CLIENT_URL');
       const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
 
       await this.mailService.sendMail(
@@ -95,7 +107,7 @@ export class AccountService implements IAccountService {
         `<h3>Password Reset Request</h3>
          <p>You requested a password reset. Click the link below to set a new password:</p>
          <a href="${resetLink}" target="_blank">Reset Password</a>
-         <p>This link will expire in 15 minutes. If you did not make this request, please ignore this email.</p>`,
+         <p>This link will expire in ${Math.floor(resetTokenExpiry / 60)} minutes. If you did not make this request, please ignore this email.</p>`,
       );
     }
 
@@ -103,7 +115,9 @@ export class AccountService implements IAccountService {
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const email = await this.redisService.get(`reset:${resetPasswordDto.token}`);
+    const email = await this.redisService.get(
+      `reset:${resetPasswordDto.token}`,
+    );
     if (!email) {
       throw new BadRequestException('Invalid or expired reset token');
     }
@@ -125,7 +139,7 @@ export class AccountService implements IAccountService {
 
   private async generateTokens(user: User) {
     const payload = { sub: user._id.toString(), email: user.email };
-    const secret = this.configService.get<string>('jwt.secret') ?? 'super_secret_jwt_key';
+    const secret = this.configService.get<string>('JWT_SECRET');
 
     const accessToken = this.jwtService.sign(payload, {
       secret,
@@ -133,7 +147,7 @@ export class AccountService implements IAccountService {
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret,
-      expiresIn: (this.configService.get<string>('jwt.expiration') ?? '24h') as any,
+      expiresIn: (this.configService.get<string>('JWT_EXPIRATION') ?? '24h') as any,
     });
 
     return { accessToken, refreshToken };

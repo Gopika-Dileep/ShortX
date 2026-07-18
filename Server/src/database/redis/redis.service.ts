@@ -1,19 +1,32 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import { IRedisService } from './interfaces/redis.service.interface';
 
 @Injectable()
-export class RedisService implements OnModuleInit, OnModuleDestroy {
+export class RedisService
+  implements OnModuleInit, OnModuleDestroy, IRedisService
+{
   private client: Redis | null = null;
   private readonly logger = new Logger(RedisService.name);
-  private memoryFallback = new Map<string, { value: string; expiresAt: number | null }>();
+  private memoryFallback = new Map<
+    string,
+    { value: string; expiresAt: number | null }
+  >();
 
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
-    const redisUri = this.configService.get<string>('redis.uri');
+    const redisUri = this.configService.get<string>('REDIS_URI');
     if (!redisUri) {
-      this.logger.warn('redis.uri is not configured. Falling back to In-Memory store.');
+      this.logger.warn(
+        'REDIS_URI is not configured. Falling back to In-Memory store.',
+      );
       return;
     }
 
@@ -24,16 +37,22 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       });
 
       this.client.on('error', (err) => {
-        this.logger.error(`Redis connection error: ${err.message}. Falling back to In-Memory store.`);
+        this.logger.error(
+          `Redis connection error: ${err.message}. Falling back to In-Memory store.`,
+        );
         this.client = null;
       });
 
       this.client.connect().catch((err) => {
-        this.logger.error(`Failed to connect to Redis: ${err.message}. Falling back to In-Memory store.`);
+        this.logger.error(
+          `Failed to connect to Redis: ${err.message}. Falling back to In-Memory store.`,
+        );
         this.client = null;
       });
     } catch (error: any) {
-      this.logger.error(`Redis client initialization failed: ${error.message}. Falling back to In-Memory store.`);
+      this.logger.error(
+        `Redis client initialization failed: ${error.message}. Falling back to In-Memory store.`,
+      );
     }
   }
 
@@ -47,7 +66,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         }
         return;
       } catch (err: any) {
-        this.logger.error(`Redis set operation failed: ${err.message}. Using fallback.`);
+        this.logger.error(
+          `Redis set operation failed: ${err.message}. Using fallback.`,
+        );
       }
     }
 
@@ -60,7 +81,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       try {
         return await this.client.get(key);
       } catch (err: any) {
-        this.logger.error(`Redis get operation failed: ${err.message}. Using fallback.`);
+        this.logger.error(
+          `Redis get operation failed: ${err.message}. Using fallback.`,
+        );
       }
     }
 
@@ -81,7 +104,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         await this.client.del(key);
         return;
       } catch (err: any) {
-        this.logger.error(`Redis delete operation failed: ${err.message}. Using fallback.`);
+        this.logger.error(
+          `Redis delete operation failed: ${err.message}. Using fallback.`,
+        );
       }
     }
 

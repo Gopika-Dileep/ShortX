@@ -1,46 +1,44 @@
-import { Controller, Post, Body, UsePipes, HttpCode, HttpStatus, Res, UseGuards, Req, Inject } from '@nestjs/common';
-import type { Response } from 'express';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Res,
+  UseGuards,
+  Req,
+  Inject,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Request, Response } from 'express';
 
-import { RegisterSchema } from './dto/register.dto';
-import type { RegisterDto } from './dto/register.dto';
-import { VerifyOtpSchema } from './dto/verify-otp.dto';
-import type { VerifyOtpDto } from './dto/verify-otp.dto';
-import { ResendOtpSchema } from './dto/resend-otp.dto';
-import type { ResendOtpDto } from './dto/resend-otp.dto';
-import { LoginSchema } from './dto/login.dto';
-import type { LoginDto } from './dto/login.dto';
-import { ForgotPasswordSchema } from './dto/forgot-password.dto';
-import type { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordSchema } from './dto/reset-password.dto';
-import type { ResetPasswordDto } from './dto/reset-password.dto';
+import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { VerifyOtpDto, ResendOtpDto } from './dto/otp.dto';
+import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
 
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RefreshTokenGuard } from './guards/refresh-token.guard';
-import { CurrentUser } from './decorators/current-user.decorator';
 
-import { IIdentityServiceToken } from './interfaces/identity.service.interface';
-import type { IIdentityService } from './interfaces/identity.service.interface';
-import { IAccountServiceToken } from './interfaces/account.service.interface';
-import type { IAccountService } from './interfaces/account.service.interface';
+import { IIdentityService } from './interfaces/services/identity.service.interface';
+import { IAccountService } from './interfaces/services/account.service.interface';
+import { AUTH_ROUTES } from './constants/routes';
+import { AUTH_MESSAGES } from './constants/messages';
+import { AUTH_COOKIES } from './constants/cookies';
 
-@Controller('auth')
+@Controller(AUTH_ROUTES.BASE)
 export class AuthController {
   constructor(
-    @Inject(IIdentityServiceToken)
+    @Inject(IIdentityService)
     private readonly identityService: IIdentityService,
-    @Inject(IAccountServiceToken)
+    @Inject(IAccountService)
     private readonly accountService: IAccountService,
   ) {}
 
-  @Post('register')
-  @UsePipes(new ZodValidationPipe(RegisterSchema))
+  @Post(AUTH_ROUTES.REGISTER)
   async register(@Body() registerDto: RegisterDto) {
     return this.identityService.register(registerDto);
   }
 
-  @Post('verify-email')
-  @UsePipes(new ZodValidationPipe(VerifyOtpSchema))
+  @Post(AUTH_ROUTES.VERIFY_EMAIL)
   async verifyOtp(
     @Body() verifyOtpDto: VerifyOtpDto,
     @Res({ passthrough: true }) res: Response,
@@ -53,15 +51,13 @@ export class AuthController {
     };
   }
 
-  @Post('resend-otp')
-  @UsePipes(new ZodValidationPipe(ResendOtpSchema))
+  @Post(AUTH_ROUTES.RESEND_OTP)
   async resendOtp(@Body() resendOtpDto: ResendOtpDto) {
     return this.accountService.sendOtp(resendOtpDto.email);
   }
 
-  @Post('login')
+  @Post(AUTH_ROUTES.LOGIN)
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ZodValidationPipe(LoginSchema))
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -74,48 +70,45 @@ export class AuthController {
     };
   }
 
-  @Post('refresh')
-  @UseGuards(RefreshTokenGuard)
+  @Post(AUTH_ROUTES.REFRESH)
   @HttpCode(HttpStatus.OK)
   async refresh(
-    @Req() req: any,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.user.refreshToken;
+    const refreshToken = req.cookies?.[AUTH_COOKIES.REFRESH_TOKEN] || req.body?.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException(AUTH_MESSAGES.REFRESH_TOKEN_REQUIRED);
+    }
     const result = await this.identityService.refreshTokens(refreshToken);
     this.setRefreshTokenCookie(res, result.refreshToken);
     return { accessToken: result.accessToken };
   }
 
-  @Post('logout')
+  @Post(AUTH_ROUTES.LOGOUT)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async logout(
-    @CurrentUser() user: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const userId = user._id.toString();
+  async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+    const userId = req.user._id.toString();
     await this.identityService.logout(userId);
-    res.clearCookie('refresh_token');
-    return { message: 'Logged out successfully' };
+    res.clearCookie(AUTH_COOKIES.REFRESH_TOKEN);
+    return { message: AUTH_MESSAGES.LOGGED_OUT_SUCCESS };
   }
 
-  @Post('forgot-password')
+  @Post(AUTH_ROUTES.FORGOT_PASSWORD)
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ZodValidationPipe(ForgotPasswordSchema))
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.accountService.forgotPassword(forgotPasswordDto);
   }
 
-  @Post('reset-password')
+  @Post(AUTH_ROUTES.RESET_PASSWORD)
   @HttpCode(HttpStatus.OK)
-  @UsePipes(new ZodValidationPipe(ResetPasswordSchema))
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.accountService.resetPassword(resetPasswordDto);
   }
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
-    res.cookie('refresh_token', refreshToken, {
+    res.cookie(AUTH_COOKIES.REFRESH_TOKEN, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
