@@ -2,10 +2,10 @@ import type { ReactNode } from 'react';
 import { Link2, Zap, Shield, BarChart3 } from 'lucide-react';
 
 const features = [
-  { icon: Zap, text: 'Create short links in seconds' },
-  { icon: Shield, text: 'Secure & reliable by default' },
+  { icon: Zap,       text: 'Create short links in seconds' },
+  { icon: Shield,    text: 'Secure & reliable by default' },
   { icon: BarChart3, text: 'Track clicks and analytics' },
-  { icon: Link2, text: 'Custom aliases for your brand' },
+  { icon: Link2,     text: 'Custom aliases for your brand' },
 ];
 
 interface AuthLayoutProps {
@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
       {/* ── Left: Branded Panel ───────────────────────────── */}
       <div className="hidden lg:flex flex-1 flex-col justify-between p-14 relative overflow-hidden"
-        style={{ background: 'linear-gradient(145deg, #4338ca 0%, #6366f1 45%, #818cf8 100%)' }}>
+        style={{ background: 'linear-gradient(145deg, #411218 0%, #561C24 45%, #6D2932 100%)' }}>
 
         {/* Dot grid overlay */}
         <div className="absolute inset-0 opacity-[0.07]"
@@ -26,9 +26,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Glow circles */}
         <div className="absolute top-0 right-0 w-[520px] h-[520px] rounded-full opacity-[0.12]"
-          style={{ background: 'radial-gradient(circle, #fff 0%, transparent 70%)', transform: 'translate(35%, -35%)' }} />
+          style={{ background: 'radial-gradient(circle, #E8D8C4 0%, transparent 70%)', transform: 'translate(35%, -35%)' }} />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-[0.10]"
-          style={{ background: 'radial-gradient(circle, #fff 0%, transparent 70%)', transform: 'translate(-35%, 35%)' }} />
+          style={{ background: 'radial-gradient(circle, #C7B7A3 0%, transparent 70%)', transform: 'translate(-35%, 35%)' }} />
 
         {/* Brand mark */}
         <div className="relative z-10 flex items-center gap-2.5">
@@ -40,11 +40,11 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Headline & features */}
         <div className="relative z-10 animate-fade-in">
-          <p className="text-sm font-semibold text-indigo-200 uppercase tracking-widest mb-4">URL Shortener Platform</p>
+          <p className="text-sm font-semibold uppercase tracking-widest mb-4" style={{ color: '#C7B7A3' }}>URL Shortener Platform</p>
           <h2 className="text-4xl font-extrabold text-white leading-[1.15] tracking-tight mb-5">
             Shorten smarter.<br />Share faster.
           </h2>
-          <p className="text-indigo-100/80 text-base leading-relaxed mb-10 max-w-sm">
+          <p className="text-base leading-relaxed mb-10 max-w-sm" style={{ color: 'rgba(232,216,196,0.80)' }}>
             Every link, optimised. ShortX gives you blazing-fast short URLs with real-time analytics and custom branding.
           </p>
 
@@ -62,12 +62,13 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Footer */}
         <div className="relative z-10">
-          <p className="text-indigo-300/70 text-xs">© {new Date().getFullYear()} ShortX. All rights reserved.</p>
+          <p className="text-xs" style={{ color: 'rgba(199,183,163,0.70)' }}>© {new Date().getFullYear()} ShortX. All rights reserved.</p>
         </div>
       </div>
 
       {/* ── Right: Form Panel ─────────────────────────────── */}
-      <div className="flex-1 flex flex-col justify-center px-10 py-14 bg-white min-h-screen lg:max-w-[480px] xl:max-w-[520px]">
+      <div className="flex-1 flex flex-col justify-center px-10 py-14 min-h-screen lg:max-w-[480px] xl:max-w-[520px]"
+        style={{ background: '#F9F6F0' }}>
         <div className="w-full max-w-sm mx-auto animate-slide-up">
           {children}
         </div>
