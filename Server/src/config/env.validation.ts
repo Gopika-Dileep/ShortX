@@ -20,7 +20,10 @@ class EnvironmentVariables {
   MONGODB_URI: string;
 
   @IsString()
-  REDIS_URI: string;
+  UPSTASH_REDIS_REST_URL: string;
+
+  @IsString()
+  UPSTASH_REDIS_REST_TOKEN: string;
 
   @IsString()
   JWT_SECRET: string;

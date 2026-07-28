@@ -12,7 +12,7 @@ export class UrlService implements IUrlService {
     private readonly urlRepository: IUrlRepository,
     @Inject(IRedisService)
     private readonly redisService: IRedisService,
-  ) {}
+  ) { }
 
   async shortenUrl(
     userId: string,
@@ -53,35 +53,29 @@ export class UrlService implements IUrlService {
       clicks: 0,
     });
 
-    // Cache it in Redis
-    await this.redisService.set(`url:${shortCode}`, originalUrl, 86400); // 24 hours TTL
+    await this.redisService.set(`url:${shortCode}`, originalUrl, 86400);
 
     return urlObj;
   }
 
   async resolveUrl(shortCode: string): Promise<string> {
-    // Check Redis cache first
     const cached = await this.redisService.get(`url:${shortCode}`);
     if (cached) {
-      // Increment clicks asynchronously
       this.urlRepository.findByShortCode(shortCode).then((urlDoc) => {
         if (urlDoc) {
           this.urlRepository.incrementClicks(urlDoc._id.toString());
         }
-      }).catch(() => {});
+      }).catch(() => { });
       return cached;
     }
 
-    // DB fallback
     const urlDoc = await this.urlRepository.findByShortCode(shortCode);
     if (!urlDoc) {
       throw new NotFoundException('Shortened URL not found');
     }
 
-    // Set cache
     await this.redisService.set(`url:${shortCode}`, urlDoc.originalUrl, 86400);
 
-    // Increment clicks
     await this.urlRepository.incrementClicks(urlDoc._id.toString());
 
     return urlDoc.originalUrl;
@@ -95,7 +89,7 @@ export class UrlService implements IUrlService {
   ): Promise<{ data: UrlDocument[]; total: number; totalClicks: number; activeDomains: number }> {
     const paginated = await this.urlRepository.findByUserPaginated(userId, page, limit, search);
     const allUrls = await this.urlRepository.findByUser(userId);
-    
+
     const totalClicks = allUrls.reduce((sum, item) => sum + item.clicks, 0);
     const activeDomains = new Set(
       allUrls
