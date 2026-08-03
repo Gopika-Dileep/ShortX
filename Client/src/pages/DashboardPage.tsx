@@ -179,9 +179,9 @@ export default function DashboardPage() {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-xs">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Brand */}
-          <div className="flex items-center gap-1">
-            <img src="/logo.png" alt="ShortX Logo" className="w-16 h-16 object-contain" />
-            <span className="text-xl font-extrabold text-gray-900 tracking-tight">ShortX</span>
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="ShortX Logo" className="w-9 h-9 object-contain" />
+            <span className="text-lg font-extrabold text-gray-900 tracking-tight">ShortX</span>
           </div>
 
           {/* User profile + Logout */}
