@@ -17,12 +17,33 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string }>({});
+
+  const validate = () => {
+    const tempErrors: { password?: string; confirmPassword?: string } = {};
+    if (!password) {
+      tempErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      tempErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!confirmPassword) {
+      tempErrors.confirmPassword = 'Confirm password is required';
+    } else if (password !== confirmPassword) {
+      tempErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(''); setSuccess('');
-    if (password !== confirmPassword) { setError('Passwords do not match.'); return; }
+    
+    if (!validate()) return;
     if (!token) { setError('Invalid or missing reset token.'); return; }
+    
     setLoading(true);
     try {
       const { data } = await authApi.resetPassword({ token, password });
@@ -56,19 +77,24 @@ export default function ResetPasswordPage() {
       )}
 
       {!success && (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">New password</label>
             <div className="relative">
               <input
                 id="reset-password-input"
                 type={showPassword ? 'text' : 'password'}
-                required
-                minLength={6}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                }}
                 placeholder="Min. 6 characters"
-                className="w-full h-11 px-3.5 pr-11 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+                className={`w-full h-11 px-3.5 pr-11 rounded-lg border bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all ${
+                  errors.password
+                    ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
+                    : 'border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10'
+                }`}
               />
               <button
                 type="button"
@@ -78,6 +104,7 @@ export default function ResetPasswordPage() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+            {errors.password && <p className="text-xs text-red-600 mt-0.5 ml-1">{errors.password}</p>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -85,12 +112,19 @@ export default function ResetPasswordPage() {
             <input
               id="reset-confirm-password-input"
               type={showPassword ? 'text' : 'password'}
-              required
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (errors.confirmPassword) setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+              }}
               placeholder="Re-enter your password"
-              className="w-full h-11 px-3.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+              className={`w-full h-11 px-3.5 rounded-lg border bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all ${
+                errors.confirmPassword
+                  ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
+                  : 'border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10'
+              }`}
             />
+            {errors.confirmPassword && <p className="text-xs text-red-600 mt-0.5 ml-1">{errors.confirmPassword}</p>}
           </div>
 
           <button

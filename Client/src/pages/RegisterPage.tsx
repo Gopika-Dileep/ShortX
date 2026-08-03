@@ -15,10 +15,38 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  const validate = () => {
+    const tempErrors: { email?: string; password?: string } = {};
+    
+    // Email verification
+    if (!email.trim()) {
+      tempErrors.email = 'Email address is required';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        tempErrors.email = 'Please enter a valid email address';
+      }
+    }
+
+    // Password verification
+    if (!password) {
+      tempErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      tempErrors.password = 'Password must be at least 6 characters';
+    }
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    if (!validate()) return;
+    
     setLoading(true);
     try {
       await authApi.register({ name, email, password });
@@ -45,7 +73,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">
             Name <span className="text-gray-400 font-normal">(optional)</span>
@@ -65,14 +93,21 @@ export default function RegisterPage() {
           <label className="text-sm font-medium text-gray-700">Email address</label>
           <input
             id="register-email"
-            type="email"
+            type="text"
             autoComplete="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+            }}
             placeholder="you@example.com"
-            className="w-full h-11 px-3.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+            className={`w-full h-11 px-3.5 rounded-lg border bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all ${
+              errors.email
+                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
+                : 'border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10'
+            }`}
           />
+          {errors.email && <p className="text-xs text-red-600 mt-0.5 ml-1">{errors.email}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -82,12 +117,17 @@ export default function RegisterPage() {
               id="register-password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              required
-              minLength={6}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+              }}
               placeholder="Min. 6 characters"
-              className="w-full h-11 px-3.5 pr-11 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+              className={`w-full h-11 px-3.5 pr-11 rounded-lg border bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all ${
+                errors.password
+                  ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
+                  : 'border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10'
+              }`}
             />
             <button
               type="button"
@@ -97,6 +137,7 @@ export default function RegisterPage() {
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
+          {errors.password && <p className="text-xs text-red-600 mt-0.5 ml-1">{errors.password}</p>}
         </div>
 
         <button
