@@ -15,11 +15,16 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
 
   const validate = () => {
-    const tempErrors: { email?: string; password?: string } = {};
+    const tempErrors: { name?: string; email?: string; password?: string } = {};
     
+    // Name verification
+    if (!name.trim()) {
+      tempErrors.name = 'Full name is required';
+    }
+
     // Email verification
     if (!email.trim()) {
       tempErrors.email = 'Email address is required';
@@ -75,18 +80,24 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-gray-700">
-            Name <span className="text-gray-400 font-normal">(optional)</span>
-          </label>
+          <label className="text-sm font-medium text-gray-700">Name</label>
           <input
             id="register-name"
             type="text"
             autoComplete="name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+            }}
             placeholder="Your full name"
-            className="w-full h-11 px-3.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+            className={`w-full h-11 px-3.5 rounded-lg border bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all ${
+              errors.name
+                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
+                : 'border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10'
+            }`}
           />
+          {errors.name && <p className="text-xs text-red-600 mt-0.5 ml-1">{errors.name}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
