@@ -18,7 +18,6 @@ import Navbar from '../components/Navbar';
 
 export default function DashboardPage() {
 
-  // States
   const [urls, setUrls] = useState<UrlItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [originalUrl, setOriginalUrl] = useState('');
@@ -31,7 +30,6 @@ export default function DashboardPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Pagination states
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
@@ -39,11 +37,11 @@ export default function DashboardPage() {
   const [activeDomains, setActiveDomains] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  // Debounce search query changes by 500ms
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      setPage(1); // Reset to page 1 on new search terms
+      setPage(1);
     }, 500);
 
     return () => {
@@ -51,7 +49,7 @@ export default function DashboardPage() {
     };
   }, [searchQuery]);
 
-  // Load user's URLs based on page, limit, and debounced search query
+
   const fetchUrls = async (background = false) => {
     if (!background) setLoading(true);
     try {
@@ -90,7 +88,7 @@ export default function DashboardPage() {
     fetchUrls();
   }, [page, limit, debouncedSearchQuery]);
 
-  // Set up background polling to keep click stats and URL data updated live (every 5 seconds)
+
   useEffect(() => {
     const interval = setInterval(() => {
       fetchUrls(true);
@@ -117,14 +115,14 @@ export default function DashboardPage() {
       setOriginalUrl('');
       setCustomCode('');
       setFormSuccess(res.data.shortCode);
-      
-      // Reset view to first page, clear search query and reload list to show newest item
+
+
       setPage(1);
       setSearchQuery('');
       setDebouncedSearchQuery('');
       await fetchUrls();
 
-      // Auto dismiss success banner after 5s
+
       setTimeout(() => setFormSuccess(null), 5000);
     } catch (err: any) {
       const message = err.response?.data?.message || 'Failed to shorten URL';
@@ -138,8 +136,8 @@ export default function DashboardPage() {
     setDeletingId(id);
     try {
       await urlApi.delete(id);
-      
-      // If we are deleting the last item on a page > 1, go back one page. Otherwise refetch.
+
+
       if (urls.length === 1 && page > 1) {
         setPage((p) => p - 1);
       } else {
@@ -468,7 +466,7 @@ export default function DashboardPage() {
                       value={limit}
                       onChange={(e) => {
                         setLimit(Number(e.target.value));
-                        setPage(1); // reset to page 1
+                        setPage(1);
                       }}
                       className="bg-white border border-gray-200 rounded-md px-2 py-1 text-xs text-gray-700 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                     >
@@ -496,11 +494,10 @@ export default function DashboardPage() {
                       <button
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer font-sans ${
-                          isCurrent
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer font-sans ${isCurrent
                             ? 'bg-indigo-600 text-white shadow-xs'
                             : 'border border-gray-200 bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {p}
                       </button>

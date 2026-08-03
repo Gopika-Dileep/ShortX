@@ -1,7 +1,7 @@
 import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 import type { UserResponse } from '../mapper/auth.mapper';
 
-// Register DTO
+
 export class RegisterDto {
   @IsEmail({}, { message: 'Invalid email address' })
   email: string;
@@ -20,7 +20,6 @@ export interface RegisterResponse {
   message: string;
 }
 
-// Login DTO
 export class LoginDto {
   @IsEmail({}, { message: 'Invalid email address' })
   email: string;
@@ -36,7 +35,7 @@ export interface LoginResponse {
   refreshToken: string;
 }
 
-// Refresh Token DTO
+
 export class RefreshTokenDto {
   @IsString()
   @MinLength(1, { message: 'Refresh token is required' })

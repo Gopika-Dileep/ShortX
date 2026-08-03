@@ -4,21 +4,21 @@ import { useAppSelector } from '../store/hooks';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-// Theme tokens
+
 const C = {
-  primary:   '#561C24', // dark burgundy
-  primaryMd: '#6D2932', // mid burgundy
-  primaryDk: '#411218', // deep burgundy
-  beige:     '#E8D8C4', // light beige
-  cream:     '#F9F6F0', // soft cream
-  taupe:     '#C7B7A3', // warm taupe
+  primary: '#561C24',
+  primaryMd: '#6D2932',
+  primaryDk: '#411218',
+  beige: '#E8D8C4',
+  cream: '#F9F6F0',
+  taupe: '#C7B7A3',
 };
 
 const features = [
-  { icon: Link2,    title: 'Instant short links',  desc: 'Shorten any URL in milliseconds. Clean, memorable links every time.' },
-  { icon: BarChart3, title: 'Click analytics',      desc: 'Track every click with real-time data. Know exactly where your audience comes from.' },
-  { icon: Shield,   title: 'Safe & reliable',       desc: 'All links are verified and monitored with 99.9% uptime guaranteed.' },
-  { icon: Globe,    title: 'Custom domains',         desc: 'Use your own domain for branded short links that build trust.' },
+  { icon: Link2, title: 'Instant short links', desc: 'Shorten any URL in milliseconds. Clean, memorable links every time.' },
+  { icon: BarChart3, title: 'Click analytics', desc: 'Track every click with real-time data. Know exactly where your audience comes from.' },
+  { icon: Shield, title: 'Safe & reliable', desc: 'All links are verified and monitored with 99.9% uptime guaranteed.' },
+  { icon: Globe, title: 'Custom domains', desc: 'Use your own domain for branded short links that build trust.' },
 ];
 
 export default function LandingPage() {
@@ -28,13 +28,13 @@ export default function LandingPage() {
   return (
     <div style={{ minHeight: '100vh', background: C.cream, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' }}>
 
-      {/* ── Navbar ─────────────────────────────────────────── */}
+
       <Navbar />
 
-      {/* ── Hero ───────────────────────────────────────────── */}
+
       <section style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '80px 24px 60px' }}>
 
-        {/* Badge */}
+
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           padding: '6px 14px', borderRadius: 99,
@@ -45,7 +45,7 @@ export default function LandingPage() {
           Fast, free URL shortener
         </div>
 
-        {/* Headline */}
+
         <h1 style={{
           fontSize: 64, fontWeight: 900, color: '#111827',
           lineHeight: 1.08, letterSpacing: '-2px', margin: '0 0 20px',
@@ -59,7 +59,7 @@ export default function LandingPage() {
           Turn long, clunky URLs into clean short links in seconds. Get real-time analytics, custom aliases, and reliable uptime.
         </p>
 
-        {/* Mock URL input */}
+
         <div style={{
           width: '100%', maxWidth: 560,
           display: 'flex', alignItems: 'center', gap: 8,
@@ -83,10 +83,10 @@ export default function LandingPage() {
 
       </section>
 
-      {/* ── Features ───────────────────────────────────────── */}
+
       <section style={{ background: C.beige, borderTop: `1px solid ${C.taupe}`, padding: '72px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          {/* Heading */}
+
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ fontSize: 32, fontWeight: 800, color: '#111827', letterSpacing: '-0.5px', margin: '0 0 10px' }}>
               Everything you need
@@ -94,7 +94,7 @@ export default function LandingPage() {
             <p style={{ fontSize: 15, color: '#6b7280', margin: 0 }}>Powerful features to help you manage and track your links.</p>
           </div>
 
-          {/* Grid */}
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
             {features.map(({ icon: Icon, title, desc }) => (
               <div key={title} style={{
@@ -116,7 +116,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Footer ─────────────────────────────────────────── */}
       <Footer />
     </div>
   );
