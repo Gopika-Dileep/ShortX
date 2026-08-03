@@ -52,8 +52,8 @@ export default function DashboardPage() {
   }, [searchQuery]);
 
   // Load user's URLs based on page, limit, and debounced search query
-  const fetchUrls = async () => {
-    setLoading(true);
+  const fetchUrls = async (background = false) => {
+    if (!background) setLoading(true);
     try {
       const response = await urlApi.getMyUrls(page, limit, debouncedSearchQuery);
       const resData: any = response.data;
@@ -82,12 +82,20 @@ export default function DashboardPage() {
       console.error('Failed to fetch URLs:', err);
       setUrls([]);
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchUrls();
+  }, [page, limit, debouncedSearchQuery]);
+
+  // Set up background polling to keep click stats and URL data updated live (every 5 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchUrls(true);
+    }, 5000);
+    return () => clearInterval(interval);
   }, [page, limit, debouncedSearchQuery]);
 
 
