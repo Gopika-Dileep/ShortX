@@ -11,10 +11,29 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [errors, setErrors] = useState<{ email?: string }>({});
+
+  const validate = () => {
+    const tempErrors: { email?: string } = {};
+    if (!email.trim()) {
+      tempErrors.email = 'Email address is required';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        tempErrors.email = 'Please enter a valid email address';
+      }
+    }
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError(''); setSuccess(''); setLoading(true);
+    setError(''); setSuccess('');
+    
+    if (!validate()) return;
+    
+    setLoading(true);
     try {
       const { data } = await authApi.forgotPassword(email);
       setSuccess(data.message || 'If the email exists, a reset link has been sent.');
@@ -46,19 +65,26 @@ export default function ForgotPasswordPage() {
       )}
 
       {!success && (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">Email address</label>
             <input
               id="forgot-email"
-              type="email"
+              type="text"
               autoComplete="email"
-              required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+              }}
               placeholder="you@example.com"
-              className="w-full h-11 px-3.5 rounded-lg border border-gray-200 bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"
+              className={`w-full h-11 px-3.5 rounded-lg border bg-white text-gray-900 text-sm placeholder-gray-400 outline-none transition-all ${
+                errors.email
+                  ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10'
+                  : 'border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10'
+              }`}
             />
+            {errors.email && <p className="text-xs text-red-600 mt-0.5 ml-1">{errors.email}</p>}
           </div>
 
           <button
