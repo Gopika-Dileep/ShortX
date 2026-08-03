@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut,
-  Zap,
   Link2,
   BarChart3,
   Globe,
@@ -181,9 +180,7 @@ export default function DashboardPage() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Brand */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-md animate-pulse-glow">
-              <Zap className="w-4 h-4 text-white fill-white" />
-            </div>
+            <img src="/logo.png" alt="ShortX Logo" className="w-8 h-8 object-contain" />
             <span className="text-lg font-extrabold text-gray-900 tracking-tight">ShortX</span>
           </div>
 

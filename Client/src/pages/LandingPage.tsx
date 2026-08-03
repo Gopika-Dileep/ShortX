@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Zap, Link2, BarChart3, Shield, Globe, Copy } from 'lucide-react';
+import { Link2, BarChart3, Shield, Globe, Copy } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
 
 // Theme tokens
@@ -35,9 +35,7 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Brand */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Zap size={16} color="#fff" fill="#fff" />
-            </div>
+            <img src="/logo.png" alt="ShortX Logo" style={{ width: 30, height: 30, objectFit: 'contain' }} />
             <span style={{ fontSize: 16, fontWeight: 800, color: '#111827', letterSpacing: '-0.3px' }}>ShortX</span>
           </div>
 
@@ -156,9 +154,7 @@ export default function LandingPage() {
       <footer style={{ borderTop: `1px solid ${C.beige}`, padding: '20px 24px', background: C.cream }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 22, height: 22, borderRadius: 6, background: C.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Zap size={12} color="#fff" fill="#fff" />
-            </div>
+            <img src="/logo.png" alt="ShortX Logo" style={{ width: 22, height: 22, objectFit: 'contain' }} />
             <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>ShortX</span>
           </div>
           <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>© {new Date().getFullYear()} ShortX. All rights reserved.</p>
