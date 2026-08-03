@@ -31,9 +31,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           style={{ background: 'radial-gradient(circle, #C7B7A3 0%, transparent 70%)', transform: 'translate(-35%, 35%)' }} />
 
         {/* Brand mark */}
-        <div className="relative z-10 flex items-center gap-2.5">
-          <img src="/logo.png" alt="ShortX Logo" className="w-9 h-9 object-contain" />
-          <span className="text-xl font-bold text-white tracking-tight">ShortX</span>
+        <div className="relative z-10 flex items-center gap-3">
+          <img src="/logo.png" alt="ShortX Logo" className="w-14 h-14 object-contain" />
+          <span className="text-2xl font-bold text-white tracking-tight">ShortX</span>
         </div>
 
         {/* Headline & features */}
