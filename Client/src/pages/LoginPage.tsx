@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       const { data } = await authApi.login({ email, password });
       dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Login failed. Please try again.');
     } finally {
@@ -104,7 +104,7 @@ export default function LoginPage() {
 
       <p className="text-sm text-gray-500 mt-8">
         Don't have an account?{' '}
-        <Link to="/register" className="text-indigo-600 font-medium hover:text-indigo-700">
+        <Link to="/register" replace className="text-indigo-600 font-medium hover:text-indigo-700">
           Create one
         </Link>
       </p>

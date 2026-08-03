@@ -50,7 +50,7 @@ export default function VerifyEmailPage() {
     try {
       const { data } = await authApi.verifyEmail({ email, otp: code });
       dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Invalid code. Please try again.');
       setOtp(Array(6).fill(''));
@@ -135,7 +135,7 @@ export default function VerifyEmailPage() {
           <RotateCcw className="w-3.5 h-3.5" />
           {resending ? 'Sending…' : 'Resend code'}
         </button>
-        <Link to="/login" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
+        <Link to="/login" replace className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
           Back to login
         </Link>
       </div>

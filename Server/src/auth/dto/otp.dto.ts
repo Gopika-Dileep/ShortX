@@ -1,6 +1,6 @@
 import { IsEmail, IsString, Length } from 'class-validator';
 
-// Verify OTP DTO
+
 export class VerifyOtpDto {
   @IsEmail({}, { message: 'Invalid email address' })
   email: string;
@@ -10,13 +10,13 @@ export class VerifyOtpDto {
   otp: string;
 }
 
-// Resend OTP DTO
+
 export class ResendOtpDto {
   @IsEmail({}, { message: 'Invalid email address' })
   email: string;
 }
 
-// Otp Response
+
 export interface OtpResponse {
   message: string;
 }

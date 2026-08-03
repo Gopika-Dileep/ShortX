@@ -22,7 +22,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await authApi.register({ name, email, password });
-      navigate('/verify-email', { state: { email } });
+      navigate('/verify-email', { state: { email }, replace: true });
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Registration failed. Please try again.');
     } finally {
@@ -112,7 +112,7 @@ export default function RegisterPage() {
 
       <p className="text-sm text-gray-500 mt-8">
         Already have an account?{' '}
-        <Link to="/login" className="text-indigo-600 font-medium hover:text-indigo-700">
+        <Link to="/login" replace className="text-indigo-600 font-medium hover:text-indigo-700">
           Sign in
         </Link>
       </p>

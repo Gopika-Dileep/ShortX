@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  LogOut,
   Link2,
   BarChart3,
   Globe,
@@ -15,17 +13,11 @@ import {
   Sparkles,
   Plus,
 } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { clearCredentials } from '../store/authSlice';
-import { authApi } from '../api/auth.api';
 import { urlApi, type UrlItem } from '../api/url.api';
+import Navbar from '../components/Navbar';
 
 export default function DashboardPage() {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const user = useAppSelector((state) => state.auth.user);
 
-  // States
   const [urls, setUrls] = useState<UrlItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [originalUrl, setOriginalUrl] = useState('');
@@ -38,7 +30,6 @@ export default function DashboardPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Pagination states
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
@@ -46,11 +37,11 @@ export default function DashboardPage() {
   const [activeDomains, setActiveDomains] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  // Debounce search query changes by 500ms
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      setPage(1); // Reset to page 1 on new search terms
+      setPage(1);
     }, 500);
 
     return () => {
@@ -58,9 +49,9 @@ export default function DashboardPage() {
     };
   }, [searchQuery]);
 
-  // Load user's URLs based on page, limit, and debounced search query
-  const fetchUrls = async () => {
-    setLoading(true);
+
+  const fetchUrls = async (background = false) => {
+    if (!background) setLoading(true);
     try {
       const response = await urlApi.getMyUrls(page, limit, debouncedSearchQuery);
       const resData: any = response.data;
@@ -89,7 +80,7 @@ export default function DashboardPage() {
       console.error('Failed to fetch URLs:', err);
       setUrls([]);
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
     }
   };
 
@@ -97,15 +88,15 @@ export default function DashboardPage() {
     fetchUrls();
   }, [page, limit, debouncedSearchQuery]);
 
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch {
-      /* ignore */
-    }
-    dispatch(clearCredentials());
-    navigate('/login');
-  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchUrls(true);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [page, limit, debouncedSearchQuery]);
+
+
 
   const handleShorten = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,14 +115,14 @@ export default function DashboardPage() {
       setOriginalUrl('');
       setCustomCode('');
       setFormSuccess(res.data.shortCode);
-      
-      // Reset view to first page, clear search query and reload list to show newest item
+
+
       setPage(1);
       setSearchQuery('');
       setDebouncedSearchQuery('');
       await fetchUrls();
 
-      // Auto dismiss success banner after 5s
+
       setTimeout(() => setFormSuccess(null), 5000);
     } catch (err: any) {
       const message = err.response?.data?.message || 'Failed to shorten URL';
@@ -145,8 +136,8 @@ export default function DashboardPage() {
     setDeletingId(id);
     try {
       await urlApi.delete(id);
-      
-      // If we are deleting the last item on a page > 1, go back one page. Otherwise refetch.
+
+
       if (urls.length === 1 && page > 1) {
         setPage((p) => p - 1);
       } else {
@@ -171,40 +162,10 @@ export default function DashboardPage() {
     return `${base}/url/${shortCode}`;
   };
 
-  const initials = (user?.name || user?.email || 'U').slice(0, 2).toUpperCase();
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-xs">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Brand */}
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="ShortX Logo" className="w-8 h-8 object-contain" />
-            <span className="text-lg font-extrabold text-gray-900 tracking-tight">ShortX</span>
-          </div>
-
-          {/* User profile + Logout */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-sm text-gray-700">
-              <div className="w-6.5 h-6.5 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-extrabold text-white">
-                {initials}
-              </div>
-              <span className="max-w-[160px] truncate font-semibold text-gray-800">
-                {user?.name || user?.email}
-              </span>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all cursor-pointer shadow-2xs"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-10 animate-slide-up">
@@ -505,7 +466,7 @@ export default function DashboardPage() {
                       value={limit}
                       onChange={(e) => {
                         setLimit(Number(e.target.value));
-                        setPage(1); // reset to page 1
+                        setPage(1);
                       }}
                       className="bg-white border border-gray-200 rounded-md px-2 py-1 text-xs text-gray-700 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                     >
@@ -533,11 +494,10 @@ export default function DashboardPage() {
                       <button
                         key={p}
                         onClick={() => setPage(p)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer font-sans ${
-                          isCurrent
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer font-sans ${isCurrent
                             ? 'bg-indigo-600 text-white shadow-xs'
                             : 'border border-gray-200 bg-white text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {p}
                       </button>

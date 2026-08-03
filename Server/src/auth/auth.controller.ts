@@ -89,7 +89,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const userId = req.user._id.toString();
+    const userId = req.user.userId || req.user._id?.toString();
     await this.identityService.logout(userId);
     res.clearCookie(AUTH_COOKIES.REFRESH_TOKEN);
     return { message: AUTH_MESSAGES.LOGGED_OUT_SUCCESS };

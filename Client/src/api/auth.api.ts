@@ -6,14 +6,14 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// ─── Request: attach access token ─────────────────────────────
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// ─── Response: refresh on 401 ─────────────────────────────────
+
 let isRefreshing = false;
 let pendingQueue: Array<{ resolve: (v: string) => void; reject: (e: unknown) => void }> = [];
 
@@ -21,7 +21,7 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    
+
     const isAuthRoute =
       original.url?.includes('/auth/login') ||
       original.url?.includes('/auth/register') ||
@@ -63,7 +63,7 @@ api.interceptors.response.use(
   },
 );
 
-// ─── Auth API calls ────────────────────────────────────────────
+
 export const authApi = {
   register: (data: { name?: string; email: string; password: string }) =>
     api.post<{ message: string }>('/auth/register', data),
