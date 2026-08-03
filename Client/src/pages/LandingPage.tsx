@@ -34,8 +34,8 @@ export default function LandingPage() {
       }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src="/logo.png" alt="ShortX Logo" style={{ width: 42, height: 42, objectFit: 'contain' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <img src="/logo.png" alt="ShortX Logo" style={{ width: 64, height: 64, objectFit: 'contain' }} />
             <span style={{ fontSize: 19, fontWeight: 800, color: '#111827', letterSpacing: '-0.3px' }}>ShortX</span>
           </div>
 
@@ -153,8 +153,8 @@ export default function LandingPage() {
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer style={{ borderTop: `1px solid ${C.beige}`, padding: '20px 24px', background: C.cream }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <img src="/logo.png" alt="ShortX Logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <img src="/logo.png" alt="ShortX Logo" style={{ width: 48, height: 48, objectFit: 'contain' }} />
             <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>ShortX</span>
           </div>
           <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>© {new Date().getFullYear()} ShortX. All rights reserved.</p>
