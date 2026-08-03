@@ -14,7 +14,7 @@ export default function App() {
     <Router>
       <Routes>
         {/* Public Landing */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
 
         {/* Auth Pages */}
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
