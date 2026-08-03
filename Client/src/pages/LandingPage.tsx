@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Link2, BarChart3, Shield, Globe, Copy } from 'lucide-react';
 import { useAppSelector } from '../store/hooks';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 // Theme tokens
 const C = {
@@ -27,43 +29,7 @@ export default function LandingPage() {
     <div style={{ minHeight: '100vh', background: C.cream, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' }}>
 
       {/* ── Navbar ─────────────────────────────────────────── */}
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(249,246,240,0.90)', backdropFilter: 'blur(12px)',
-        borderBottom: `1px solid ${C.beige}`,
-      }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <img src="/logo.png" alt="ShortX Logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
-            <span style={{ fontSize: 16, fontWeight: 800, color: '#111827', letterSpacing: '-0.3px' }}>ShortX</span>
-          </div>
-
-          {/* Nav actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {isAuthenticated ? (
-              <Link to="/dashboard" style={{
-                padding: '8px 18px', borderRadius: 8, background: C.primary,
-                color: '#fff', fontWeight: 600, fontSize: 14, textDecoration: 'none',
-              }}>
-                Go to Dashboard
-              </Link>
-            ) : (
-              <>
-                <Link to="/login" style={{ padding: '8px 16px', borderRadius: 8, color: C.primaryMd, fontWeight: 500, fontSize: 14, textDecoration: 'none' }}>
-                  Sign in
-                </Link>
-                <Link to="/register" style={{
-                  padding: '8px 18px', borderRadius: 8, background: C.primary,
-                  color: '#fff', fontWeight: 600, fontSize: 14, textDecoration: 'none',
-                }}>
-                  Get started
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ── Hero ───────────────────────────────────────────── */}
       <section style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '80px 24px 60px' }}>
@@ -151,15 +117,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <footer style={{ borderTop: `1px solid ${C.beige}`, padding: '20px 24px', background: C.cream }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <img src="/logo.png" alt="ShortX Logo" style={{ width: 24, height: 24, objectFit: 'contain' }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>ShortX</span>
-          </div>
-          <p style={{ fontSize: 12, color: '#9ca3af', margin: 0 }}>© {new Date().getFullYear()} ShortX. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

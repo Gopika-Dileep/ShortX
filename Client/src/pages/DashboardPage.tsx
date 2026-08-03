@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  LogOut,
   Link2,
   BarChart3,
   Globe,
@@ -15,15 +13,10 @@ import {
   Sparkles,
   Plus,
 } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { clearCredentials } from '../store/authSlice';
-import { authApi } from '../api/auth.api';
 import { urlApi, type UrlItem } from '../api/url.api';
+import Navbar from '../components/Navbar';
 
 export default function DashboardPage() {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const user = useAppSelector((state) => state.auth.user);
 
   // States
   const [urls, setUrls] = useState<UrlItem[]>([]);
@@ -97,15 +90,7 @@ export default function DashboardPage() {
     fetchUrls();
   }, [page, limit, debouncedSearchQuery]);
 
-  const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch {
-      /* ignore */
-    }
-    dispatch(clearCredentials());
-    navigate('/login');
-  };
+
 
   const handleShorten = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,40 +156,10 @@ export default function DashboardPage() {
     return `${base}/url/${shortCode}`;
   };
 
-  const initials = (user?.name || user?.email || 'U').slice(0, 2).toUpperCase();
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-xs">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Brand */}
-          <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="ShortX Logo" className="w-9 h-9 object-contain" />
-            <span className="text-lg font-extrabold text-gray-900 tracking-tight">ShortX</span>
-          </div>
-
-          {/* User profile + Logout */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-sm text-gray-700">
-              <div className="w-6.5 h-6.5 rounded-full bg-indigo-600 flex items-center justify-center text-[10px] font-extrabold text-white">
-                {initials}
-              </div>
-              <span className="max-w-[160px] truncate font-semibold text-gray-800">
-                {user?.name || user?.email}
-              </span>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all cursor-pointer shadow-2xs"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-10 animate-slide-up">
