@@ -50,7 +50,7 @@ export default function VerifyEmailPage() {
     try {
       const { data } = await authApi.verifyEmail({ email, otp: code });
       dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Invalid code. Please try again.');
       setOtp(Array(6).fill(''));

@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       const { data } = await authApi.login({ email, password });
       dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
       setError(err?.response?.data?.message ?? 'Login failed. Please try again.');
     } finally {
