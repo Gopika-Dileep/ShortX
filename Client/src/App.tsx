@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -8,8 +9,39 @@ import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+import { setCredentials, clearCredentials, setInitialized } from './store/authSlice';
+import { authApi } from './api/auth.api';
 
 export default function App() {
+  const dispatch = useAppDispatch();
+  const isInitialized = useAppSelector((state) => state.auth.isInitialized);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const { data } = await authApi.refresh();
+        dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
+      } catch (err) {
+        dispatch(clearCredentials());
+      } finally {
+        dispatch(setInitialized(true));
+      }
+    };
+    initializeAuth();
+  }, [dispatch]);
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F9F6F0]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#561C24] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#561C24] font-semibold text-lg animate-pulse">Loading ShortX...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Routes>

@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { IBaseRepository } from './base.repository.interface';
 
 export abstract class BaseMongoRepository<T> implements IBaseRepository<T> {
-  protected constructor(protected readonly model: Model<any>) {}
+  protected constructor(protected readonly model: Model<T>) {}
 
   async findAll(): Promise<T[]> {
     return this.model.find().exec();
@@ -12,17 +12,17 @@ export abstract class BaseMongoRepository<T> implements IBaseRepository<T> {
     return this.model.findById(id).exec();
   }
 
-  async findOne(filter: Record<string, any>): Promise<T | null> {
-    return this.model.findOne(filter).exec();
+  async findOne(filter: Record<string, unknown>): Promise<T | null> {
+    return this.model.findOne(filter as unknown as Parameters<Model<T>['findOne']>[0]).exec();
   }
 
-  async create(item: Partial<T> | any): Promise<T> {
+  async create(item: Partial<T>): Promise<T> {
     const createdItem = new this.model(item);
-    return createdItem.save();
+    return createdItem.save() as Promise<T>;
   }
 
-  async update(id: string, item: Partial<T> | any): Promise<T | null> {
-    return this.model.findByIdAndUpdate(id, item, { new: true }).exec();
+  async update(id: string, item: Partial<T>): Promise<T | null> {
+    return this.model.findByIdAndUpdate(id, item, { new: true }).exec() as Promise<T | null>;
   }
 
   async delete(id: string): Promise<boolean> {

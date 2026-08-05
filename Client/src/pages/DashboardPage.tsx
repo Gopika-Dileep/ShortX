@@ -54,12 +54,13 @@ export default function DashboardPage() {
     if (!background) setLoading(true);
     try {
       const response = await urlApi.getMyUrls(page, limit, debouncedSearchQuery);
-      const resData: any = response.data;
+      const resData = response.data;
       if (resData && Array.isArray(resData)) {
-        setUrls(resData);
-        setTotal(resData.length);
-        setTotalClicks(resData.reduce((sum: number, item: any) => sum + (item.clicks || 0), 0));
-        setActiveDomains(new Set(resData.map((item: any) => {
+        const arr = resData as UrlItem[];
+        setUrls(arr);
+        setTotal(arr.length);
+        setTotalClicks(arr.reduce((sum: number, item: UrlItem) => sum + (item.clicks || 0), 0));
+        setActiveDomains(new Set(arr.map((item: UrlItem) => {
           try {
             return new URL(item.originalUrl).hostname;
           } catch {
@@ -76,7 +77,7 @@ export default function DashboardPage() {
       } else {
         setUrls([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to fetch URLs:', err);
       setUrls([]);
     } finally {
@@ -124,8 +125,9 @@ export default function DashboardPage() {
 
 
       setTimeout(() => setFormSuccess(null), 5000);
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to shorten URL';
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string | string[] } } };
+      const message = axiosError.response?.data?.message || 'Failed to shorten URL';
       setFormError(Array.isArray(message) ? message[0] : message);
     } finally {
       setFormLoading(false);
@@ -143,8 +145,9 @@ export default function DashboardPage() {
       } else {
         await fetchUrls();
       }
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to delete URL');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      alert(axiosError.response?.data?.message || 'Failed to delete URL');
     } finally {
       setDeletingId(null);
     }

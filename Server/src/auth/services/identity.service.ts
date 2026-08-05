@@ -130,7 +130,11 @@ export class IdentityService implements IIdentityService {
       user.refreshToken = await bcrypt.hash(newTokens.refreshToken, 10);
       await this.authRepository.update(user._id.toString(), user);
 
-      return newTokens;
+      return {
+        accessToken: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken,
+        user: AuthMapper.toResponse(user),
+      };
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -146,7 +150,7 @@ export class IdentityService implements IIdentityService {
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret,
-      expiresIn: (this.configService.get<string>('JWT_EXPIRATION') ?? '24h') as any,
+      expiresIn: (this.configService.get<string>('JWT_EXPIRATION') ?? '24h') as unknown as '24h',
     });
 
     return { accessToken, refreshToken };

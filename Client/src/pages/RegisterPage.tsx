@@ -56,8 +56,9 @@ export default function RegisterPage() {
     try {
       await authApi.register({ name, email, password });
       navigate('/verify-email', { state: { email }, replace: true });
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Registration failed. Please try again.');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      setError(axiosError.response?.data?.message ?? 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

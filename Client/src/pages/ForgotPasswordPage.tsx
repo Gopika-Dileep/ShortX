@@ -37,8 +37,9 @@ export default function ForgotPasswordPage() {
     try {
       const { data } = await authApi.forgotPassword(email);
       setSuccess(data.message || 'If the email exists, a reset link has been sent.');
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Something went wrong. Please try again.');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      setError(axiosError.response?.data?.message ?? 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
