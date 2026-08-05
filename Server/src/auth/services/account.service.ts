@@ -147,7 +147,7 @@ export class AccountService implements IAccountService {
     });
     const refreshToken = this.jwtService.sign(payload, {
       secret,
-      expiresIn: (this.configService.get<string>('JWT_EXPIRATION') ?? '24h') as any,
+      expiresIn: (this.configService.get<string>('JWT_EXPIRATION') ?? '24h') as unknown as '24h',
     });
 
     return { accessToken, refreshToken };

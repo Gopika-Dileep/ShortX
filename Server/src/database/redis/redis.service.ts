@@ -36,9 +36,10 @@ export class RedisService
         token: redisToken,
       });
       this.logger.log('Upstash Redis client initialized successfully.');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Upstash Redis client initialization failed: ${error.message}. Falling back to In-Memory store.`,
+        `Upstash Redis client initialization failed: ${message}. Falling back to In-Memory store.`,
       );
     }
   }
@@ -52,9 +53,10 @@ export class RedisService
           await this.client.set(key, value);
         }
         return;
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         this.logger.error(
-          `Upstash Redis set operation failed: ${err.message}. Using fallback.`,
+          `Upstash Redis set operation failed: ${message}. Using fallback.`,
         );
       }
     }
@@ -71,9 +73,10 @@ export class RedisService
           return null;
         }
         return typeof val === 'string' ? val : String(val);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         this.logger.error(
-          `Upstash Redis get operation failed: ${err.message}. Using fallback.`,
+          `Upstash Redis get operation failed: ${message}. Using fallback.`,
         );
       }
     }
@@ -94,9 +97,10 @@ export class RedisService
       try {
         await this.client.del(key);
         return;
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         this.logger.error(
-          `Upstash Redis delete operation failed: ${err.message}. Using fallback.`,
+          `Upstash Redis delete operation failed: ${message}. Using fallback.`,
         );
       }
     }

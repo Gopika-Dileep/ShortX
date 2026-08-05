@@ -45,4 +45,5 @@ export class RefreshTokenDto {
 export interface TokenResponse {
   accessToken: string;
   refreshToken: string;
+  user: UserResponse;
 }

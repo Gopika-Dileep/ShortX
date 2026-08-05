@@ -12,7 +12,14 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: string;
+    email: string;
+  };
+}
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { IUrlService } from './interfaces/services/url.service.interface';
 import { ShortenUrlDto } from './dto/shorten-url.dto';
@@ -27,8 +34,8 @@ export class UrlController {
 
   @Post('shorten')
   @UseGuards(JwtAuthGuard)
-  async shorten(@Req() req: any, @Body() shortenUrlDto: ShortenUrlDto) {
-    const userId = req.user.userId || req.user._id;
+  async shorten(@Req() req: AuthenticatedRequest, @Body() shortenUrlDto: ShortenUrlDto) {
+    const userId = req.user.userId;
     return this.urlService.shortenUrl(
       userId,
       shortenUrlDto.originalUrl,
@@ -39,10 +46,10 @@ export class UrlController {
   @Get()
   @UseGuards(JwtAuthGuard)
   async getMyUrls(
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
     @Query() query: UrlPaginationDto,
   ) {
-    const userId = req.user.userId || req.user._id;
+    const userId = req.user.userId;
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
     const search = query.search;
@@ -61,8 +68,8 @@ export class UrlController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  async deleteUrl(@Req() req: any, @Param('id') id: string) {
-    const userId = req.user.userId || req.user._id;
+  async deleteUrl(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    const userId = req.user.userId;
     await this.urlService.deleteUrl(userId, id);
     return { message: 'Shortened URL deleted successfully' };
   }

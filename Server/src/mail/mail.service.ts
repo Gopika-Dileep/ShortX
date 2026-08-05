@@ -32,9 +32,10 @@ export class MailService implements IMailService {
         });
         this.logger.log(`Email successfully sent to ${to}`);
         return;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
         this.logger.error(
-          `Failed to send email to ${to} via SMTP: ${error.message}`,
+          `Failed to send email to ${to} via SMTP: ${message}`,
         );
       }
     }

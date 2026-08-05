@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { store } from '../store/store';
+import { setCredentials, clearCredentials } from '../store/authSlice';
 import type { User } from '../store/authSlice';
 
 const api = axios.create({
@@ -8,7 +10,7 @@ const api = axios.create({
 
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = store.getState().auth.accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -43,8 +45,8 @@ api.interceptors.response.use(
       original._retry = true;
       isRefreshing = true;
       try {
-        const { data } = await api.post('/auth/refresh');
-        localStorage.setItem('accessToken', data.accessToken);
+        const { data } = await api.post<{ user: User; accessToken: string }>('/auth/refresh');
+        store.dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
         pendingQueue.forEach(({ resolve }) => resolve(data.accessToken));
         pendingQueue = [];
         original.headers.Authorization = `Bearer ${data.accessToken}`;
@@ -52,7 +54,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         pendingQueue.forEach(({ reject }) => reject(refreshError));
         pendingQueue = [];
-        localStorage.removeItem('accessToken');
+        store.dispatch(clearCredentials());
         window.location.href = '/login';
         return Promise.reject(refreshError);
       } finally {
@@ -76,6 +78,9 @@ export const authApi = {
 
   login: (data: { email: string; password: string }) =>
     api.post<{ user: User; accessToken: string }>('/auth/login', data),
+
+  refresh: () =>
+    api.post<{ user: User; accessToken: string }>('/auth/refresh'),
 
   logout: () =>
     api.post<{ message: string }>('/auth/logout'),

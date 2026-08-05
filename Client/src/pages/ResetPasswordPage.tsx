@@ -49,8 +49,9 @@ export default function ResetPasswordPage() {
       const { data } = await authApi.resetPassword({ token, password });
       setSuccess(data.message || 'Password reset successfully!');
       setTimeout(() => navigate('/login', { replace: true }), 3000);
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Failed to reset password. The link may have expired.');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      setError(axiosError.response?.data?.message ?? 'Failed to reset password. The link may have expired.');
     } finally {
       setLoading(false);
     }

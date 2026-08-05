@@ -12,7 +12,7 @@ export default function VerifyEmailPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const email: string = (location.state as any)?.email ?? '';
+  const email: string = (location.state as { email?: string } | null)?.email ?? '';
 
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
@@ -51,8 +51,9 @@ export default function VerifyEmailPage() {
       const { data } = await authApi.verifyEmail({ email, otp: code });
       dispatch(setCredentials({ user: data.user, accessToken: data.accessToken }));
       navigate('/dashboard', { replace: true });
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Invalid code. Please try again.');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      setError(axiosError.response?.data?.message ?? 'Invalid code. Please try again.');
       setOtp(Array(6).fill(''));
       inputRefs.current[0]?.focus();
     } finally {
@@ -67,8 +68,9 @@ export default function VerifyEmailPage() {
       setSuccess('A new code has been sent to your email.');
       setOtp(Array(6).fill(''));
       inputRefs.current[0]?.focus();
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Failed to resend code.');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      setError(axiosError.response?.data?.message ?? 'Failed to resend code.');
     } finally {
       setResending(false);
     }

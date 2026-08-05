@@ -12,6 +12,13 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: string;
+    email: string;
+  };
+}
+
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { VerifyOtpDto, ResendOtpDto } from './dto/otp.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
@@ -82,14 +89,14 @@ export class AuthController {
     }
     const result = await this.identityService.refreshTokens(refreshToken);
     this.setRefreshTokenCookie(res, result.refreshToken);
-    return { accessToken: result.accessToken };
+    return { accessToken: result.accessToken, user: result.user };
   }
 
   @Post(AUTH_ROUTES.LOGOUT)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const userId = req.user.userId || req.user._id?.toString();
+  async logout(@Req() req: AuthenticatedRequest, @Res({ passthrough: true }) res: Response) {
+    const userId = req.user.userId;
     await this.identityService.logout(userId);
     res.clearCookie(AUTH_COOKIES.REFRESH_TOKEN);
     return { message: AUTH_MESSAGES.LOGGED_OUT_SUCCESS };

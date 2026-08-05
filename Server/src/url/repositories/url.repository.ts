@@ -31,7 +31,7 @@ export class UrlRepository
     limit: number,
     search?: string,
   ): Promise<{ data: UrlDocument[]; total: number }> {
-    const query: Record<string, any> = { user: new Types.ObjectId(userId) };
+    const query: Record<string, unknown> = { user: new Types.ObjectId(userId) };
 
     if (search) {
       query.$or = [
@@ -44,12 +44,12 @@ export class UrlRepository
 
     const [data, total] = await Promise.all([
       this.urlModel
-        .find(query)
+        .find(query as unknown as Parameters<Model<UrlDocument>['find']>[0])
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .exec(),
-      this.urlModel.countDocuments(query).exec(),
+      this.urlModel.countDocuments(query as unknown as Parameters<Model<UrlDocument>['countDocuments']>[0]).exec(),
     ]);
 
     return { data, total };
